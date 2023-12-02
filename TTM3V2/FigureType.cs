@@ -1,19 +1,19 @@
-﻿using System.Drawing;
+﻿using System;
 using System.Windows.Media;
 
 namespace TTM3V2
 {
     public class FigureType
     {
-        private int typeID = 0;
+        private Brush color = Brushes.Black;
         private ImageSource image = null;
 
-        public int TypeID { get { return typeID; } }
+        public Brush Color { get { return color; } }
         public ImageSource Image { get { return image; } }
 
-        public FigureType(int typeID, ImageSource image)
+        public FigureType(Brush color, ImageSource image)
         {
-            this.typeID = typeID;
+            this.color = color;
             this.image = image;
         }
     }

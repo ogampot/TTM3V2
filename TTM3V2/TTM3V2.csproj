@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\bomb.png" />
     <None Remove="Images\circle.png" />
     <None Remove="Images\hexagon.png" />
+    <None Remove="Images\line.png" />
     <None Remove="Images\pentagon.png" />
     <None Remove="Images\square.png" />
     <None Remove="Images\tile.png" />
@@ -17,8 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\bomb.png" />
     <Resource Include="Images\circle.png" />
     <Resource Include="Images\hexagon.png" />
+    <Resource Include="Images\line.png" />
     <Resource Include="Images\pentagon.png" />
     <Resource Include="Images\square.png" />
     <Resource Include="Images\tile.png" />

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System;
+using System.Windows.Media;
 
 namespace TTM3V2
 {
@@ -31,20 +32,12 @@ namespace TTM3V2
             figure.label.Content = position.X + ":" + position.Y;
         }
 
-        public void SetFigureType(FigureType figureType)
+        public void SetFigureType(FigureType figureType, ImageSource imageSource, Action<Vector2> action)
         {
             if (figureType == null) ChangeStatus(TileStatus.Empty);
             else ChangeStatus(TileStatus.Full);
 
-            figure.ApplyFigureType(figureType);
-        }
-
-        public void SetFigureTypeWithoutImage(FigureType figureType)
-        {
-            if (figureType == null) ChangeStatus(TileStatus.Empty);
-            else ChangeStatus(TileStatus.Full);
-
-            figure.ApplyFigureType(figureType);
+            figure.ApplyFigureType(figureType, imageSource, action);
         }
 
         public void ChangeStatus(TileStatus status)
@@ -70,7 +63,7 @@ namespace TTM3V2
         public void Clean()
         {
             ChangeStatus(TileStatus.Empty);
-            figure.ApplyFigureType(null);
+            figure.ApplyFigureType(null, null, null);
         }
     }
 }

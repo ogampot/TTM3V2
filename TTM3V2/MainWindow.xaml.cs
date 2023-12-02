@@ -36,12 +36,22 @@ namespace TTM3V2
 
         private FigureType[] figureTypes =
         {
-            new FigureType(0, new BitmapImage(new Uri("pack://application:,,,/Images/circle.png"))),
-            new FigureType(1, new BitmapImage(new Uri("pack://application:,,,/Images/triangle.png"))),
-            new FigureType(2, new BitmapImage(new Uri("pack://application:,,,/Images/square.png"))),
-            new FigureType(3, new BitmapImage(new Uri("pack://application:,,,/Images/pentagon.png"))),
-            new FigureType(4, new BitmapImage(new Uri("pack://application:,,,/Images/hexagon.png")))
+            new FigureType(Brushes.Red, new BitmapImage(new Uri("pack://application:,,,/Images/circle.png"))),
+            new FigureType(Brushes.Yellow, new BitmapImage(new Uri("pack://application:,,,/Images/triangle.png"))),
+            new FigureType(Brushes.CornflowerBlue, new BitmapImage(new Uri("pack://application:,,,/Images/square.png"))),
+            new FigureType(Brushes.Magenta, new BitmapImage(new Uri("pack://application:,,,/Images/pentagon.png"))),
+            new FigureType(Brushes.Lime, new BitmapImage(new Uri("pack://application:,,,/Images/hexagon.png")))
         };
+
+        private ImageSource bombImage = new BitmapImage(new Uri("pack://application:,,,/Images/bomb.png"));
+        private List<Tile> willBeBomb = new List<Tile>();
+        private int bombExplosionDelay = 250;
+        private int matchesCountToSpawnBomb = 5;
+
+        private ImageSource lineImage = new BitmapImage(new Uri("pack://application:,,,/Images/line.png"));
+        private List<Tile> willBeLine = new List<Tile>();
+        private int lineActivationDelay = 50;
+        private int matchesCountToSpawnLine = 4;
 
         private ResourceDictionary resourceDictionary = (ResourceDictionary)Application.LoadComponent(new Uri("Dictionary.xaml", UriKind.Relative));
 
@@ -107,6 +117,8 @@ namespace TTM3V2
 
         private void InitializeFigures(int dropDuration)
         {
+            if(clearAnimationInProcess > 0) return;
+
             FigureType[] previousTypes = new FigureType[] { GetRandomFigureType(figureTypes), GetRandomFigureType(figureTypes) };
 
             for (int i = 0; i < boardSize; i++)
@@ -131,12 +143,46 @@ namespace TTM3V2
                             previousTypes[0] = randomType;
                         }
 
-                        boardTiles[i, j].SetFigureType(randomType);
+                        boardTiles[i, j].SetFigureType(randomType, null, null);
 
                         DropAnimation(boardTiles[i, j], dropDuration);
                     }
+
+                    if (willBeBomb.Count > 0)
+                    {
+                        for (int n = 0; n < willBeBomb.Count; n++)
+                        {
+                            if (willBeBomb[n].Position.X == boardTiles[i, j].Position.X &&
+                                willBeBomb[n].Position.Y == boardTiles[i, j].Position.Y)
+                            {
+                                Tile tile = boardTiles[i, j];
+
+                                boardTiles[i, j].SetFigureType(willBeBomb[n].Figure.FigureType, bombImage, BombExplosion);
+
+                                willBeBomb.RemoveAt(n);
+                            }
+                        }
+                    }
+
+                    if (willBeLine.Count > 0)
+                    {
+                        for (int n = 0; n < willBeLine.Count; n++)
+                        {
+                            if (willBeLine[n].Position.X == boardTiles[i, j].Position.X &&
+                                willBeLine[n].Position.Y == boardTiles[i, j].Position.Y)
+                            {
+                                Tile tile = boardTiles[i, j];
+
+                                boardTiles[i, j].SetFigureType(willBeLine[n].Figure.FigureType, lineImage, LineActivation);
+
+                                willBeLine.RemoveAt(n);
+                            }
+                        }
+                    }
                 }
             }
+
+            if (clearAnimationInProcess > 0) return;
 
             CheckMatchWithClear();
         }
@@ -225,6 +271,8 @@ namespace TTM3V2
 
             if (selectedTile != null)
             {
+                if(tile == selectedTile) return;
+
                 StopSelectionAnimation(selectedTile);
 
                 SwapTiles(selectedTile, tile, 200);
@@ -280,11 +328,11 @@ namespace TTM3V2
 
         private void TryToSwapTiles(Tile tile1, Tile tile2, int duration)
         {
-            SwapFiguresWithoutImage(tile1, tile2);
+            SwapFigures(tile1, tile2);
 
             tilesToClear = CheckMatch();
 
-            SwapFiguresWithoutImage(tile1, tile2);
+            SwapFigures(tile1, tile2);
 
             if(tilesToClear.Count > 0)
             {
@@ -298,16 +346,12 @@ namespace TTM3V2
 
         private void SwapFigures(Tile tile1, Tile tile2)
         {
-            FigureType type1 = tile1.Figure.FigureType;
-            tile1.SetFigureType(tile2.Figure.FigureType);
-            tile2.SetFigureType(type1);
-        }
+            FigureType figureType = tile1.Figure.FigureType;
+            ImageSource specialImage = tile1.Figure.SpecialImage;
+            Action<Vector2> action = tile1.Figure.OnClearEvent;
 
-        private void SwapFiguresWithoutImage(Tile tile1, Tile tile2)
-        {
-            FigureType type1 = tile1.Figure.FigureType;
-            tile1.SetFigureTypeWithoutImage(tile2.Figure.FigureType);
-            tile2.SetFigureTypeWithoutImage(type1);
+            tile1.SetFigureType(tile2.Figure.FigureType, tile2.Figure.SpecialImage, tile2.Figure.OnClearEvent);
+            tile2.SetFigureType(figureType, specialImage, action);
         }
 
         public void SwapAnimation(Tile tile1, Tile tile2, int durationMilliseconds, Action<Tile, Tile, int> onComplete)
@@ -424,7 +468,7 @@ namespace TTM3V2
                             tiles.Add(boardTiles[x, y]);
                         }
                         else
-                        {
+                        { 
                             if (tiles.Count >= 3)
                             {
                                 foreach (Tile tile in tiles)
@@ -448,6 +492,9 @@ namespace TTM3V2
                         tilesMatched.Add(tile);
                     }
                 }
+
+                CheckIfThisWillBeLine(tiles);
+                CheckIfThisWillBeBomb(tiles);
 
                 tiles.Clear();
             }
@@ -483,7 +530,7 @@ namespace TTM3V2
                 }
 
                 if (tiles.Count >= 3)
-                {
+                { 
                     foreach (Tile tile in tiles)
                     {
                         tile.ChangeStatus(Tile.TileStatus.NeedToBeClean);
@@ -491,10 +538,37 @@ namespace TTM3V2
                     }
                 }
 
+                CheckIfThisWillBeLine(tiles);
+                CheckIfThisWillBeBomb(tiles);
+
                 tiles.Clear();
             }
 
+            if(tilesMatched.Count > 0)
+            {
+                CheckIfThisWillBeLine(tilesMatched);
+                CheckIfThisWillBeBomb(tilesMatched);
+            }
+
             return tilesMatched;
+        }
+
+        private void CheckIfThisWillBeBomb(List<Tile> tiles)
+        {
+            if (tiles.Count == matchesCountToSpawnBomb)
+            {
+                if (willBeBomb.Contains(tiles[tiles.Count - 1]) == false)
+                    willBeBomb.Add(tiles[tiles.Count - 1]);
+            }
+        }
+
+        private void CheckIfThisWillBeLine(List<Tile> tiles)
+        {
+            if (tiles.Count == matchesCountToSpawnLine)
+            {
+                if (willBeLine.Contains(tiles[tiles.Count - 1]) == false)
+                    willBeLine.Add(tiles[tiles.Count - 1]);
+            }
         }
 
         private void CheckMatchWithClear()
@@ -536,7 +610,9 @@ namespace TTM3V2
             {
                 clearAnimationInProcess--;
 
-                MainCanvas.Children.Remove(boardTiles[tile.Position.X, tile.Position.Y].Figure);
+                tile.Figure.OnClearEvent?.Invoke(tile.Position);
+
+                MainCanvas.Children.Remove(tile.Figure);
                 boardTiles[tile.Position.X, tile.Position.Y] = null;
 
                 PrepareTilesToShift();
@@ -587,7 +663,7 @@ namespace TTM3V2
             }
         }
 
-        public void ShiftAnimation(Tile tile, int duration)
+        private void ShiftAnimation(Tile tile, int duration)
         {
             dropAnimationInProcess++;
 
@@ -612,6 +688,116 @@ namespace TTM3V2
             };
 
             tile.Figure.BeginAnimation(Canvas.TopProperty, animation);
+        }
+
+        private async void BombExplosion(Vector2 position)
+        {
+            for (int i = 0; i < boardSize; i++)
+            {
+                for (int j = 0; j < boardSize; j++)
+                {
+                    if (i >= position.X - 1 && i <= position.X + 1
+                        && j >= position.Y - 1 && j <= position.Y + 1)
+                    {
+                        Ellipse explosion = new Ellipse();
+
+                        explosion.Width = boardTileSize;
+                        explosion.Height = boardTileSize;
+
+                        explosion.Fill = Brushes.DarkOrange;
+
+                        Canvas.SetLeft(explosion, i * boardTileSize);
+                        Canvas.SetTop(explosion, j * boardTileSize);
+
+                        MainCanvas.Children.Add(explosion);
+
+                        DoubleAnimation animation = new DoubleAnimation
+                        {
+                            From = 1.0,
+                            To = 0,
+                            Duration = TimeSpan.FromMilliseconds(bombExplosionDelay * 2)
+                        };
+
+                        animation.Completed += delegate
+                        {
+                            MainCanvas.Children.Remove(explosion);
+                        };
+
+                        explosion.BeginAnimation(Ellipse.OpacityProperty, animation);
+                    }
+                }
+            }
+
+            await Task.Delay(bombExplosionDelay);
+
+            for (int i = 0; i < boardSize; i++)
+            {
+                for(int j = 0; j < boardSize; j++)
+                {
+                    if (i >= position.X - 1 && i <= position.X + 1
+                        && j >= position.Y - 1 && j <= position.Y + 1)
+                    {
+                        if (boardTiles[i, j] != null)
+                        {
+                            ClearAnimation(boardTiles[i, j]);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async void LineActivation(Vector2 position)
+        {
+            for (int i = 0; i < boardSize; i++)
+            {
+                for (int j = 0; j < boardSize; j++)
+                {
+                    if (i == position.X)
+                    {
+                        Ellipse explosion = new Ellipse();
+
+                        explosion.Width = boardTileSize;
+                        explosion.Height = boardTileSize;
+
+                        explosion.Fill = Brushes.DarkOrange;
+
+                        Canvas.SetLeft(explosion, i * boardTileSize);
+                        Canvas.SetTop(explosion, j * boardTileSize);
+
+                        MainCanvas.Children.Add(explosion);
+
+                        DoubleAnimation animation = new DoubleAnimation
+                        {
+                            From = 1.0,
+                            To = 0,
+                            Duration = TimeSpan.FromMilliseconds(lineActivationDelay * 2)
+                        };
+
+                        animation.Completed += delegate
+                        {
+                            MainCanvas.Children.Remove(explosion);
+                        };
+
+                        explosion.BeginAnimation(Ellipse.OpacityProperty, animation);
+                    }
+                }
+            }
+
+            await Task.Delay(lineActivationDelay);
+
+            for (int i = 0; i < boardSize; i++)
+            {
+                for (int j = 0; j < boardSize; j++)
+                {
+                    if (i == position.X)
+                    {
+                        if (boardTiles[i, j] != null)
+                        {
+                            ClearAnimation(boardTiles[i, j]);
+                        }
+                    }
+                }
+            }
         }
     }
 }

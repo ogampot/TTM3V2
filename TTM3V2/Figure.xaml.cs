@@ -2,16 +2,24 @@
 using System.Reflection.Emit;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TTM3V2
 {
     public partial class Figure : UserControl
     {
+        private Tile tileParent;
+
         private FigureType figureType;
         public FigureType FigureType { get { return figureType; } }
 
-        private Tile tileParent;
+        private ImageSource specialImage = null;
+        public ImageSource SpecialImage { get { return specialImage; } }
+
+        private Action<Vector2> onClearEvent = null;
+        public Action<Vector2> OnClearEvent { get { return onClearEvent; } }
 
         public Figure(int size, int borderThickness, Tile tileParent)
         {
@@ -19,10 +27,10 @@ namespace TTM3V2
 
             this.tileParent = tileParent;
 
-            CreateTileShape(size, borderThickness);
+            SetupFigureShape(size, borderThickness);
         }
 
-        private void CreateTileShape(int size, int borderThickness)
+        private void SetupFigureShape(int size, int borderThickness)
         {
             this.Width = size;
             this.Height = size;
@@ -44,17 +52,29 @@ namespace TTM3V2
             this.TileImage.Height = size - 15;
         }
 
-        public void ApplyFigureType(FigureType figureType)
+        public void ApplyFigureType(FigureType figureType, ImageSource imageSource, Action<Vector2> action)
         {
             this.figureType = figureType;
+
+            if(imageSource != null)
+            {
+                specialImage = imageSource;
+
+                this.TileImage.Source = imageSource;
+                this.TileBack.Fill = figureType.Color;
+            }
+            else
+            {
+                specialImage = null;
+
+                this.TileImage.Source = this.figureType.Image;
+                this.TileBack.Fill = Brushes.Transparent;
+            }
+
+            if (action != null) onClearEvent = action;
+            else onClearEvent = null;
 
             if (figureType == null) this.TileImage.Source = null;
-            else this.TileImage.Source = this.figureType.Image;
-        }
-
-        public void ApplyFigureTypeWithoutImage(FigureType figureType)
-        {
-            this.figureType = figureType;
         }
 
         private void ButtonClick(object sender, RoutedEventArgs e)
