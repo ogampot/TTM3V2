@@ -10,16 +10,20 @@ namespace TTM3V2
 {
     public partial class Figure : UserControl
     {
+        // Need to send which tile was clicked
         private Tile tileParent;
+
 
         private FigureType figureType;
         public FigureType FigureType { get { return figureType; } }
+
 
         private ImageSource specialImage = null;
         public ImageSource SpecialImage { get { return specialImage; } }
 
         private Action<Vector2> onClearEvent = null;
         public Action<Vector2> OnClearEvent { get { return onClearEvent; } }
+
 
         public Figure(int size, int borderThickness, Tile tileParent)
         {
@@ -29,6 +33,7 @@ namespace TTM3V2
 
             SetupFigureShape(size, borderThickness);
         }
+
 
         private void SetupFigureShape(int size, int borderThickness)
         {
@@ -77,14 +82,16 @@ namespace TTM3V2
             if (figureType == null) this.TileImage.Source = null;
         }
 
-        private void ButtonClick(object sender, RoutedEventArgs e)
-        {
-            GlobalEvents.SendTileButtonClicked(tileParent);
-        }
-
         public void SetButtonStyle(Style style)
         {
             this.TileButton.Style = style;
+        }
+
+
+        // On tile click event
+        private void ButtonClick(object sender, RoutedEventArgs e)
+        {
+            GlobalEvents.SendTileButtonClicked(tileParent);
         }
     }
 }

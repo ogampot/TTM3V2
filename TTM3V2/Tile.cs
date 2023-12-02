@@ -9,14 +9,18 @@ namespace TTM3V2
     {
         public enum TileStatus { Full, Empty, NeedToBeClean };
 
+
         private TileStatus status = TileStatus.Empty;
         public TileStatus Status { get { return status; } }
+
 
         private Vector2 position;
         public Vector2 Position { get { return position; } }
 
+
         private Figure figure;
         public Figure Figure { get { return figure; } }
+
 
         public Tile(Vector2 position, int size, int borderThickness)
         {
@@ -26,10 +30,10 @@ namespace TTM3V2
             figure.label.Content = position.X + ":" + position.Y;
         }
 
+
         public void SetNewPosition(Vector2 position)
         {
             this.position = position;
-            figure.label.Content = position.X + ":" + position.Y;
         }
 
         public void SetFigureType(FigureType figureType, ImageSource imageSource, Action<Vector2> action)
@@ -43,23 +47,9 @@ namespace TTM3V2
         public void ChangeStatus(TileStatus status)
         {
             this.status = status;
-
-            if (this.status == TileStatus.Full)
-            {
-                figure.label2.Content = "0";
-            }
-
-            if (this.status == TileStatus.Empty)
-            {
-                figure.label2.Content = "1";
-            }
-
-            if (this.status == TileStatus.NeedToBeClean)
-            {
-                figure.label2.Content = "2";
-            }
         }
 
+        // When a tile has been marked as "need to be clean"
         public void Clean()
         {
             ChangeStatus(TileStatus.Empty);

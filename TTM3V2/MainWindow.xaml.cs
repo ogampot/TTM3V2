@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -22,18 +23,30 @@ namespace TTM3V2
     {
         private static Random rand = new Random();
 
+
+        // Size of game field/board
         private static int boardSize = 8;
+
+        // Size of single cell of the game field/board
         private static int boardTileSize = 55;
 
+
+        // Size of tile (which will be set in cells of the game field/board) 
         private static int tileSize = 50;
         private static int tileBorderThickness = 2;
 
+
+        // Main array of tiles
         private Tile[,] boardTiles = new Tile[boardSize, boardSize];
+
 
         private Tile selectedTile;
 
+        // Tiles which will be cleared
         private List<Tile> tilesToClear = new List<Tile>();
 
+
+        // Types of figures
         private FigureType[] figureTypes =
         {
             new FigureType(Brushes.Red, new BitmapImage(new Uri("pack://application:,,,/Images/circle.png"))),
@@ -43,25 +56,34 @@ namespace TTM3V2
             new FigureType(Brushes.Lime, new BitmapImage(new Uri("pack://application:,,,/Images/hexagon.png")))
         };
 
+
+        // Bomb setup
         private ImageSource bombImage = new BitmapImage(new Uri("pack://application:,,,/Images/bomb.png"));
         private List<Tile> willBeBomb = new List<Tile>();
         private int bombExplosionDelay = 250;
         private int matchesCountToSpawnBomb = 5;
 
+        // Line setup
         private ImageSource lineImage = new BitmapImage(new Uri("pack://application:,,,/Images/line.png"));
         private List<Tile> willBeLine = new List<Tile>();
         private int lineActivationDelay = 50;
         private int matchesCountToSpawnLine = 4;
 
+
+        // Dictionary of styles for tiles
         private ResourceDictionary resourceDictionary = (ResourceDictionary)Application.LoadComponent(new Uri("Dictionary.xaml", UriKind.Relative));
 
+        // Styles for tiles
         private Style defaultTileButtonStyle;
         private Style selectedTileButtonStyle;
 
+
+        // Counters of animations in process
         private int dropAnimationInProcess = 0;
         private int successAnimationInProcess = 0;
         private int failAnimationInProcess = 0;
         private int clearAnimationInProcess = 0;
+
 
         public MainWindow()
         {
@@ -80,6 +102,7 @@ namespace TTM3V2
             InitializeBoard();
         }
 
+        // Setup of the game field/board (and of the main canvas)
         private void InitializeBoard()
         {
             this.Width = boardSize * boardTileSize + 50;
@@ -91,6 +114,7 @@ namespace TTM3V2
             FillBoard(1000);
         }
 
+        // Fill empty tiles on the game field/board
         private void FillBoard(int dropDuration)
         {
             if (dropAnimationInProcess > 0) return;
@@ -115,6 +139,7 @@ namespace TTM3V2
             InitializeFigures(dropDuration);
         }
 
+        // Setup figures of every tile
         private void InitializeFigures(int dropDuration)
         {
             if(clearAnimationInProcess > 0) return;
@@ -187,6 +212,8 @@ namespace TTM3V2
             CheckMatchWithClear();
         }
 
+
+        // Take random figure
         private FigureType GetRandomFigureType(FigureType[] types)
         {
             FigureType result = types[rand.Next(figureTypes.Length)];
@@ -227,6 +254,8 @@ namespace TTM3V2
             return result;
         }
 
+
+        // Animation for tiles that are just filled
         public void DropAnimation(Tile tile, int duration)
         {
             dropAnimationInProcess++;
@@ -258,6 +287,8 @@ namespace TTM3V2
             dropAnimationInProcess = 0;
         }
 
+
+        // Logic of tile selection
         private void SelectTile(Tile tile)
         {
             //Debug.WriteLine(selectedTile == null);
@@ -314,6 +345,8 @@ namespace TTM3V2
             tile.Figure.TileImage.BeginAnimation(HeightProperty, null);
         }
 
+
+        // Tile swapping
         private void SwapTiles(Tile tile1, Tile tile2, int durationMilliseconds)
         {
             if (selectedTile == null) return;
@@ -354,6 +387,7 @@ namespace TTM3V2
             tile2.SetFigureType(figureType, specialImage, action);
         }
 
+        // Swap animation setup
         public void SwapAnimation(Tile tile1, Tile tile2, int durationMilliseconds, Action<Tile, Tile, int> onComplete)
         {
             double startPositionTile1X = Canvas.GetLeft(tile1.Figure);
@@ -449,6 +483,8 @@ namespace TTM3V2
             SwapAnimation(tile1, tile2, duration, delegate { failAnimationInProcess--; });
         }
 
+
+        // Checking of matches
         private List<Tile> CheckMatch()
         {
             List<Tile> tiles = new List<Tile>();
@@ -553,6 +589,7 @@ namespace TTM3V2
             return tilesMatched;
         }
 
+        // Checking to add bonuses
         private void CheckIfThisWillBeBomb(List<Tile> tiles)
         {
             if (tiles.Count == matchesCountToSpawnBomb)
@@ -571,6 +608,8 @@ namespace TTM3V2
             }
         }
 
+
+        // Clear of matched tiles
         private void CheckMatchWithClear()
         {
             tilesToClear = CheckMatch();
@@ -595,6 +634,7 @@ namespace TTM3V2
             }
         }
 
+        // Clear animation setup
         private void ClearAnimation(Tile tile)
         {
             clearAnimationInProcess++;
@@ -621,6 +661,8 @@ namespace TTM3V2
             tile.Figure.BeginAnimation(OpacityProperty, animation);
         }
 
+
+        // Tiles shifting
         private void PrepareTilesToShift()
         {
             if (clearAnimationInProcess > 0) return;
@@ -663,6 +705,7 @@ namespace TTM3V2
             }
         }
 
+        // Tile shift animation setup
         private void ShiftAnimation(Tile tile, int duration)
         {
             dropAnimationInProcess++;
@@ -690,6 +733,8 @@ namespace TTM3V2
             tile.Figure.BeginAnimation(Canvas.TopProperty, animation);
         }
 
+
+        // Bonuses logic
         private async void BombExplosion(Vector2 position)
         {
             for (int i = 0; i < boardSize; i++)
