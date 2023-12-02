@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\circle.png" />
+    <None Remove="Images\hexagon.png" />
+    <None Remove="Images\pentagon.png" />
+    <None Remove="Images\square.png" />
+    <None Remove="Images\tile.png" />
+    <None Remove="Images\triangle.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\circle.png" />
+    <Resource Include="Images\hexagon.png" />
+    <Resource Include="Images\pentagon.png" />
+    <Resource Include="Images\square.png" />
+    <Resource Include="Images\tile.png" />
+    <Resource Include="Images\triangle.png" />
+  </ItemGroup>
+
+</Project>
