@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Reflection.Emit;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TTM3V2
 {
