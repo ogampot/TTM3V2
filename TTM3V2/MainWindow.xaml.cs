@@ -845,7 +845,7 @@ namespace TTM3V2
                     if (i >= position.X - 1 && i <= position.X + 1
                         && j >= position.Y - 1 && j <= position.Y + 1)
                     {
-                        if (boardTiles[i, j] != null || boardTiles[i, j].Status != Tile.TileStatus.Empty)
+                        if (boardTiles[i, j] != null && boardTiles[i, j].Status != Tile.TileStatus.Empty)
                         {
                             ClearAnimation(boardTiles[i, j]);
                         }
