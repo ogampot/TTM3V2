@@ -6,7 +6,16 @@
         xmlns:local="clr-namespace:TTM3V2"
         mc:Ignorable="d"
         Title="MainWindow" Background="Black" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" ResizeMode="CanMinimize" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="450" Height="500" VerticalAlignment="Center" HorizontalAlignment="Center">
-    <Canvas x:Name="MainCanvas" HorizontalAlignment="Center" VerticalAlignment="Center">
-
-    </Canvas>
+    <Grid>
+        <Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="50*" MaxHeight="50"/>
+            <RowDefinition Height="50*" MaxHeight="50"/>
+        </Grid.RowDefinitions>
+        <Canvas x:Name="MainCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0"/>
+        <Label x:Name="ScoreLabel" Content="Score" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="0" Grid.Row="1" FontSize="24" FontFamily="Cooper Black"></Label>
+        <Label x:Name="TimeLabel" Content="Time left" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="24" Grid.Row="2" FontFamily="Cooper Black"/>
+    </Grid>
 </Window>

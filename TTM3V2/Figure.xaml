@@ -14,7 +14,5 @@
             <Image x:Name="TileImage" HorizontalAlignment="Center" VerticalAlignment="Center" Height="80" Width="80"/>
         </Button>
         <Rectangle x:Name="TileBack" RadiusY="10" RadiusX="10" Panel.ZIndex="-1" Stroke="Black" StrokeThickness="4" />
-        <Label x:Name="label" Content="0" Foreground="White" Visibility="Hidden" Panel.ZIndex="5" IsEnabled="False" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Black" Padding="1,-2,1,-2"/>
-        <Label x:Name="label2" Content="0" Foreground="White" Visibility="Hidden"/>
     </Grid>
 </UserControl>

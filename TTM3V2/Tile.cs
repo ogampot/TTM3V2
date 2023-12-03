@@ -22,12 +22,14 @@ namespace TTM3V2
         public Figure Figure { get { return figure; } }
 
 
+        private int movedByPlayerCount = 0;
+        public int MovedByPlayerCount { get { return movedByPlayerCount; } }
+
+
         public Tile(Vector2 position, int size, int borderThickness)
         {
             this.position = position;
             this.figure = new Figure(size, borderThickness, this);
-
-            figure.label.Content = position.X + ":" + position.Y;
         }
 
 
@@ -54,6 +56,16 @@ namespace TTM3V2
         {
             ChangeStatus(TileStatus.Empty);
             figure.ApplyFigureType(null, null, null);
+        }
+
+        public void AddMoveCount()
+        {
+            movedByPlayerCount++;
+        }
+
+        public void ResetMoveCount()
+        {
+            movedByPlayerCount = 0;
         }
     }
 }

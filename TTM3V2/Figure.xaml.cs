@@ -53,8 +53,8 @@ namespace TTM3V2
 
             this.TileButton.Click += ButtonClick;
 
-            this.TileImage.Width = size - 15;
-            this.TileImage.Height = size - 15;
+            this.TileImage.Width = size - 5;
+            this.TileImage.Height = size - 5;
         }
 
         public void ApplyFigureType(FigureType figureType, ImageSource imageSource, Action<Vector2> action)
