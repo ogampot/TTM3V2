@@ -28,7 +28,7 @@ namespace TTM3V2
 
             this.MainMenuButton.Click += delegate
             {
-                GlobalEvents.OpenGame();
+                GlobalEvents.OpenMainMenu();
                 this.Close();
             };
         }
